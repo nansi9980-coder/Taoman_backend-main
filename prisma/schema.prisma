@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  phone     String?
+  role      String   @default("user") // user, admin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  quotes        Quote[]
+  messages      Message[]
+  appointments  Appointment[]
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  company   String?
+  status    String   @default("Actif")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  quotes      Quote[]
+  appointments Appointment[]
+}
+
+model Quote {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("En attente") // En attente, En révision, Envoyé, Refusé
+  amount      Float?
+  pdfUrl      String?
+  service     String?
+  clientId    Int?
+  userId      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  client      Client?  @relation(fields: [clientId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model Content {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  type      String   // page, article, etc.
+  slug      String   @unique
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Job {
+  id          Int      @id @default(autoincrement())
+  title       String
+  category    String?
+  description String
+  skills      String?
+  location    String?
+  type        String   @default("full-time") // full-time, part-time, contract
+  published   Boolean  @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Investment {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  amount      Float
+  roi         Float?
+  risk        String   @default("medium") // low, medium, high
+  status      String   @default("active") // active, completed, failed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  subject   String
+  content   String
+  fromId    Int
+  toId      Int?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  from      User     @relation(fields: [fromId], references: [id])
+}
+
+model Backup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  size      Float
+  type      String
+  status    String
+  duration  String
+  createdAt DateTime @default(now())
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  user      String
+  action    String
+  resource  String
+  status    String
+  ip        String
+  details   String?
+  createdAt DateTime @default(now())
+}
+
+model Media {
+  id         Int      @id @default(autoincrement())
+  name       String
+  type       String
+  size       String
+  url        String
+  category   String   @default("general") // e.g. realisation
+  uploadedAt DateTime @default(now())
+}
+
+model Report {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String
+  size      String
+  status    String
+  format    String
+  createdAt DateTime @default(now())
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    String   @default("nouveau")
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  userId    Int?
+  createdAt DateTime @default(now())
+}
+
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model ServiceCard {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  icon        String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model SiteContent {
+  id          Int      @id @default(autoincrement())
+  section     String   @unique
+  content     String
+  updatedAt   DateTime @updatedAt
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  title       String
+  date        DateTime
+  clientId    Int?
+  userId      Int?
+  status      String   @default("scheduled") // scheduled, completed, cancelled
+  createdAt   DateTime @default(now())
+
+  client      Client?  @relation(fields: [clientId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model ThemeSetting {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  primary     String
+  secondary   String
+  surface     String
+  background  String
+  isActive    Boolean  @default(false)
+}
