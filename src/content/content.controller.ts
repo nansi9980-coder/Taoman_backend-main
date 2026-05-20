@@ -62,6 +62,12 @@ export class ContentController {
     return this.contentService.upsertSiteContent(section, body.content);
   }
 
+  @Delete('texts/:section')
+  @UseGuards(JwtAuthGuard)
+  deleteText(@Param('section') section: string) {
+    return this.contentService.deleteSiteContent(section);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Body() data: any) {

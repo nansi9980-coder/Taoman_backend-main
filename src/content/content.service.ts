@@ -71,4 +71,8 @@ export class ContentService {
       create: { section, content: contentStr },
     });
   }
+
+  deleteSiteContent(section: string) {
+    return this.prisma.siteContent.delete({ where: { section } });
+  }
 }

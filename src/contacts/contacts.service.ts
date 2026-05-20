@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 import { LogsService } from '../logs/logs.service';
@@ -14,13 +14,17 @@ export class ContactsService {
   ) {}
 
   async create(data: { name: string; email: string; phone?: string; subject: string; message: string }) {
+    if (!data.name?.trim() || !data.email?.trim() || !data.subject?.trim() || !data.message?.trim()) {
+      throw new BadRequestException('Nom, email, sujet et message sont requis');
+    }
+
     const contact = await this.prisma.contact.create({
       data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        subject: data.subject,
-        message: data.message,
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        phone: data.phone?.trim() || null,
+        subject: data.subject.trim(),
+        message: data.message.trim(),
       },
     });
 
