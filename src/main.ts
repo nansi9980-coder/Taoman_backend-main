@@ -11,8 +11,13 @@ async function bootstrap() {
     process.env.FRONTEND_CLIENT_URL,
   ].filter((url): url is string => Boolean(url));
 
-  // If no origins are configured, allow all for development
-  const corsOrigin = allowedOrigins.length > 0 ? allowedOrigins : true;
+  const corsOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  };
 
   app.enableCors({
     origin: corsOrigin,
