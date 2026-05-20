@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 import { LogsService } from '../logs/logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MailService } from '../mail/mail.service';
 const PdfPrinter = require('pdfmake');
 
 @Injectable()
@@ -12,6 +13,7 @@ export class QuotesService {
     private eventsGateway: EventsGateway,
     private logsService: LogsService,
     private notificationsService: NotificationsService,
+    private mailService: MailService,
   ) {}
 
   findAll() {
@@ -158,6 +160,13 @@ export class QuotesService {
       title: 'Nouveau devis',
       message: `${quote.title} — ${quote.client?.name || 'Client'}`,
     });
+
+    if (action === 'submit') {
+      await this.mailService.sendAdminAlert(
+        `Nouveau devis — ${quote.title}`,
+        `<p><strong>${quote.client?.name || 'Client'}</strong></p><p>${quote.description || ''}</p>`,
+      );
+    }
   }
 
   async generatePdf(id: number): Promise<{ url: string }> {

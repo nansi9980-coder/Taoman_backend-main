@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 import { LogsService } from '../logs/logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class ContactsService {
@@ -11,6 +12,7 @@ export class ContactsService {
     private eventsGateway: EventsGateway,
     private logsService: LogsService,
     private notificationsService: NotificationsService,
+    private mailService: MailService,
   ) {}
 
   async create(data: { name: string; email: string; phone?: string; subject: string; message: string }) {
@@ -42,6 +44,11 @@ export class ContactsService {
       title: 'Nouveau contact',
       message: `${contact.name}: ${contact.subject}`,
     });
+
+    await this.mailService.sendAdminAlert(
+      `Nouveau contact — ${contact.subject}`,
+      `<p><strong>${contact.name}</strong> (${contact.email})</p><p>${contact.message}</p>`,
+    );
 
     return contact;
   }

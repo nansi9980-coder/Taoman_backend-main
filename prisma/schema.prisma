@@ -115,6 +115,8 @@ model Backup {
   type      String
   status    String
   duration  String
+  url       String?
+  publicId  String?
   createdAt DateTime @default(now())
 }
 
@@ -135,6 +137,7 @@ model Media {
   type       String
   size       String
   url        String
+  publicId   String?
   category   String   @default("general") // e.g. realisation
   uploadedAt DateTime @default(now())
 }

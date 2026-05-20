@@ -27,10 +27,12 @@ import { EventsModule } from './events/events.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UserDashboardModule } from './user-dashboard/user-dashboard.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    CloudinaryModule,
     PassportModule,
     PrismaModule,
     MailModule,

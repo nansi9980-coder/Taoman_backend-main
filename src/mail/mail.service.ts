@@ -40,6 +40,15 @@ export class MailService {
     });
   }
 
+  async sendAdminAlert(subject: string, html: string) {
+    const adminEmail = process.env.ADMIN_ALERT_EMAIL;
+    if (!adminEmail) {
+      this.logger.warn('ADMIN_ALERT_EMAIL non défini — alerte ignorée.');
+      return;
+    }
+    await this.sendEmail(adminEmail, subject, html);
+  }
+
   async sendEmail(to: string, subject: string, html: string) {
     if (!this.resend) {
       this.logger.warn(`Email ignoré pour ${to} : clé API manquante.`);

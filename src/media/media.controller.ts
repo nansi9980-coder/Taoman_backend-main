@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Delete, Param, UseInterceptors, UploadedFile, UseGuards, ParseIntPipe, BadRequestException, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
+  ParseIntPipe,
+  BadRequestException,
+  Body,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -15,17 +27,17 @@ export class MediaController {
   @Post('upload')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: any, @Body() body: any) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: { category?: string }) {
     if (!file) {
       throw new BadRequestException('Aucun fichier fourni');
     }
-    
-    // file has path, filename, size, mimetype
-    const url = `/uploads/${file.filename}`;
-    const sizeInMB = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-    const category = body.category || 'general';
-    
-    return this.mediaService.saveMediaInfo(file.originalname, file.mimetype, sizeInMB, url, category);
+    return this.mediaService.uploadFile(file, body.category || 'general');
+  }
+
+  @Post('migrate-to-cloudinary')
+  @UseGuards(JwtAuthGuard)
+  migrateToCloudinary() {
+    return this.mediaService.migrateToCloudinary();
   }
 
   @Delete(':id')

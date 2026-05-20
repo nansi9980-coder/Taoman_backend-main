@@ -11,4 +11,9 @@ export class StatsController {
   getDashboardStats() {
     return this.statsService.getDashboardStats();
   }
+
+  @Get('overview')
+  getOverview() {
+    return this.statsService.getOverview();
+  }
 }
