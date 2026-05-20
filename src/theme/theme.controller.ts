@@ -20,6 +20,11 @@ export class ThemeController {
     return this.themeService.initDefaultThemes();
   }
 
+  @Post('seed-presets')
+  seedPresets() {
+    return this.themeService.seedPresetThemes();
+  }
+
   @Put('active/:id')
   setActiveTheme(@Param('id') id: string) {
     return this.themeService.setActiveTheme(Number(id));
