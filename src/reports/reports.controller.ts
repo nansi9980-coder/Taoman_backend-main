@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, UseGuards, Res, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Res, Query } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ReportsService } from './reports.service';
 import { Response } from 'express';
@@ -14,8 +14,12 @@ export class ReportsController {
   }
 
   @Post('generate/:type')
-  async generateReport(@Param('type') type: string, @Res() res: Response) {
-    const pdfBuffer = await this.reportsService.generatePdfReport(type);
+  async generateReport(
+    @Param('type') type: string,
+    @Body() body: { title?: string; notes?: string },
+    @Res() res: Response,
+  ) {
+    const pdfBuffer = await this.reportsService.generatePdfReport(type, body?.title, body?.notes);
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename=rapport-${type}-${new Date().toISOString().slice(0,10)}.pdf`,

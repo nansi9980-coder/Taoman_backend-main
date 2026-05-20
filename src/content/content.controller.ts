@@ -35,10 +35,31 @@ export class ContentController {
 
   // ── Routes protégées (admin) ──────────────────────────────────────────────
 
+  @Get('admin')
+  @UseGuards(JwtAuthGuard)
+  getAdminOverview() {
+    return this.contentService.getAdminOverview();
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   findAll() {
     return this.contentService.getServiceCards();
+  }
+
+  @Post('texts')
+  @UseGuards(JwtAuthGuard)
+  upsertText(@Body() body: { section: string; content: string | Record<string, unknown> }) {
+    return this.contentService.upsertSiteContent(body.section, body.content);
+  }
+
+  @Put('texts/:section')
+  @UseGuards(JwtAuthGuard)
+  updateText(
+    @Param('section') section: string,
+    @Body() body: { content: string | Record<string, unknown> },
+  ) {
+    return this.contentService.upsertSiteContent(section, body.content);
   }
 
   @Post()
@@ -51,12 +72,6 @@ export class ContentController {
   @UseGuards(JwtAuthGuard)
   updateService(@Param('id') id: string, @Body() data: any) {
     return this.contentService.updateServiceCard(+id, data);
-  }
-
-  @Post('texts')
-  @UseGuards(JwtAuthGuard)
-  upsertText(@Body() body: { section: string; content: string }) {
-    return this.contentService.upsertSiteContent(body.section, body.content);
   }
 
   @Put(':id')

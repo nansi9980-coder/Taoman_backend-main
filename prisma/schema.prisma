@@ -185,6 +185,9 @@ model ServiceCard {
   title       String
   description String
   icon        String?
+  imageUrl    String?
+  actionText  String?
+  actionLink  String?
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
 }

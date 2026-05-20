@@ -19,6 +19,14 @@ async function bootstrap() {
     return callback(new Error(`Origin ${origin} not allowed by CORS`));
   };
 
+  (app.getHttpAdapter().getInstance() as any).set('etag', false);
+  app.use((req: any, res: any, next: () => void) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
+
   app.enableCors({
     origin: corsOrigin,
     credentials: true,
