@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 import { LogsService } from '../logs/logs.service';
@@ -54,33 +54,80 @@ export class QuotesService {
     return quote;
   }
 
+  private resolveClientEmail(email?: string, phone?: string, name?: string): string {
+    const trimmed = email?.trim();
+    if (trimmed && trimmed.includes('@')) {
+      return trimmed.toLowerCase();
+    }
+
+    const digits = phone?.replace(/\D/g, '') || '';
+    if (digits.length >= 6) {
+      return `devis+${digits}@taoman.local`;
+    }
+
+    const slug = (name || 'client')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .toLowerCase()
+      .slice(0, 40);
+
+    return `devis+${slug}-${Date.now()}@taoman.local`;
+  }
+
   async submitQuote(data: {
     title: string;
     description?: string;
-    clientEmail: string;
+    clientEmail?: string;
     clientName: string;
     clientPhone?: string;
+    address?: string;
     service?: string;
     userId?: number;
   }) {
+    if (!data.title?.trim()) {
+      throw new BadRequestException('Le titre du devis est requis');
+    }
+    if (!data.clientName?.trim()) {
+      throw new BadRequestException('Le nom du client est requis');
+    }
+
+    const clientEmail = this.resolveClientEmail(
+      data.clientEmail,
+      data.clientPhone,
+      data.clientName,
+    );
+
+    let description = data.description?.trim() || '';
+    if (data.address?.trim()) {
+      description = description
+        ? `${description}\nAdresse: ${data.address.trim()}`
+        : `Adresse: ${data.address.trim()}`;
+    }
+
     let client = await this.prisma.client.findUnique({
-      where: { email: data.clientEmail },
+      where: { email: clientEmail },
     });
 
     if (!client) {
       client = await this.prisma.client.create({
         data: {
-          name: data.clientName,
-          email: data.clientEmail,
-          phone: data.clientPhone,
+          name: data.clientName.trim(),
+          email: clientEmail,
+          phone: data.clientPhone?.trim() || null,
         },
+      });
+    } else if (data.clientPhone?.trim() && client.phone !== data.clientPhone.trim()) {
+      client = await this.prisma.client.update({
+        where: { id: client.id },
+        data: { phone: data.clientPhone.trim() },
       });
     }
 
     const quote = await this.prisma.quote.create({
       data: {
-        title: data.title,
-        description: data.description,
+        title: data.title.trim(),
+        description: description || null,
         service: data.service,
         clientId: client.id,
         userId: data.userId,

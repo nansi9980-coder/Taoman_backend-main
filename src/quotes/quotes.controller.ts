@@ -7,13 +7,30 @@ export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 
   @Post('submit')
-  submitQuote(@Body() data: { name: string; email: string; phone?: string; title: string; description?: string; service?: string; userId?: number }) {
+  submitQuote(
+    @Body()
+    data: {
+      name: string;
+      email?: string;
+      phone?: string;
+      address?: string;
+      title: string;
+      description?: string;
+      service?: string;
+      userId?: number;
+    },
+  ) {
+    const description =
+      data.description ||
+      (data.service ? `Service demandé: ${data.service}` : undefined);
+
     return this.quotesService.submitQuote({
       clientName: data.name,
       clientEmail: data.email,
       clientPhone: data.phone,
+      address: data.address,
       title: data.title,
-      description: data.description || `Service demandé: ${data.service || 'Non spécifié'}`,
+      description,
       service: data.service,
       userId: data.userId,
     });
