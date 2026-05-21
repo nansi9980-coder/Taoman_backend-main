@@ -44,3 +44,24 @@ export function corsOriginCallback(
   console.warn(`[CORS] Origin blocked: ${origin}`);
   callback(null, false);
 }
+
+/** En-têtes envoyés par l’admin (api.js) et le front — requis pour les requêtes preflight OPTIONS */
+export const CORS_ALLOWED_HEADERS = [
+  'Content-Type',
+  'Authorization',
+  'Accept',
+  'X-Requested-With',
+  'Cache-Control',
+  'Pragma',
+  'Expires',
+];
+
+export const CORS_ALLOWED_METHODS = [
+  'GET',
+  'HEAD',
+  'PUT',
+  'PATCH',
+  'POST',
+  'DELETE',
+  'OPTIONS',
+];
