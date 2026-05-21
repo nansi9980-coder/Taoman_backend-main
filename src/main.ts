@@ -1,23 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { corsOriginCallback } from './config/cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Enable CORS for frontend communication
-  const allowedOrigins = [
-    process.env.FRONTEND_ADMIN_URL,
-    process.env.FRONTEND_CLIENT_URL,
-  ].filter((url): url is string => Boolean(url));
-
-  const corsOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-    return callback(new Error(`Origin ${origin} not allowed by CORS`));
-  };
 
   (app.getHttpAdapter().getInstance() as any).set('etag', false);
   app.use((req: any, res: any, next: () => void) => {
@@ -28,11 +15,12 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: corsOrigin,
+    origin: corsOriginCallback,
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   });
 
-  // Enable validation pipes
   app.useGlobalPipes(new ValidationPipe());
 
   const port = process.env.PORT || 3000;

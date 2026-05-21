@@ -4,8 +4,11 @@
 
 - `DATABASE_URL` — PostgreSQL Neon
 - `JWT_SECRET`
-- `FRONTEND_CLIENT_URL` — URL vitrine (Vercel)
-- `FRONTEND_ADMIN_URL` — URL admin (Vercel)
+- `FRONTEND_CLIENT_URL` — URL vitrine prod (`https://www.taomaninvestment.com`)
+- `FRONTEND_ADMIN_URL` — URL admin (Vercel ou domaine custom)
+- `CORS_EXTRA_ORIGINS` — optionnel, URLs séparées par des virgules (previews Vercel, etc.)
+
+Les domaines `taomaninvestment.com`, `www.taomaninvestment.com` et `*.vercel.app` sont autorisés par défaut dans le code. Après modification CORS, **redéployer le backend** sur Render.
 - `RESEND_API_KEY`, `MAIL_FROM`
 - `ADMIN_ALERT_EMAIL` — alertes nouveaux contacts/devis
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
