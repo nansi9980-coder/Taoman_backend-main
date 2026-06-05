@@ -19,7 +19,7 @@ const defaults = [
       { label: 'FCFA Investis', value: '500K+', icon: '💰' },
       { label: 'Rendement Moyen', value: '150K/mois', icon: '📈' },
       { label: 'Délai Retour', value: '10 mois', icon: '⏱️' },
-      { label: 'Retour Total Moyen', value: '2M FCFA', icon: '🎯' }
+      { label: 'Retour Total Moyen', value: '1,5M FCFA', icon: '🎯' }
     ], null, 2)
   },
   {
