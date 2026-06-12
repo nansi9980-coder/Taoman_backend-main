@@ -4,6 +4,7 @@ import { EventsGateway } from '../events/events.gateway';
 import { LogsService } from '../logs/logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { MailService } from '../mail/mail.service';
+import { MediaService } from '../media/media.service';
 const PdfPrinter = require('pdfmake');
 
 @Injectable()
@@ -14,6 +15,7 @@ export class QuotesService {
     private logsService: LogsService,
     private notificationsService: NotificationsService,
     private mailService: MailService,
+    private mediaService: MediaService,
   ) {}
 
   findAll() {
@@ -77,7 +79,8 @@ export class QuotesService {
     return `devis+${slug}-${Date.now()}@taoman.local`;
   }
 
-  async submitQuote(data: {
+  async submitQuote(
+    data: {
     title: string;
     description?: string;
     clientEmail?: string;
@@ -86,7 +89,9 @@ export class QuotesService {
     address?: string;
     service?: string;
     userId?: number;
-  }) {
+  },
+    attachment?: Express.Multer.File,
+  ) {
     if (!data.title?.trim()) {
       throw new BadRequestException('Le titre du devis est requis');
     }
@@ -105,6 +110,15 @@ export class QuotesService {
       description = description
         ? `${description}\nAdresse: ${data.address.trim()}`
         : `Adresse: ${data.address.trim()}`;
+    }
+
+    let attachmentUrl: string | null = null;
+    if (attachment) {
+      const media = await this.mediaService.uploadFile(attachment, 'quote-attachments');
+      attachmentUrl = media.url;
+      description = description
+        ? `${description}\nDocument joint: ${media.url}`
+        : `Document joint: ${media.url}`;
     }
 
     let client = await this.prisma.client.findUnique({
@@ -133,6 +147,7 @@ export class QuotesService {
         service: data.service,
         clientId: client.id,
         userId: data.userId,
+        attachmentUrl,
       },
       include: { client: true, user: true },
     });

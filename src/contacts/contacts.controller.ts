@@ -1,14 +1,30 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContactsService } from './contacts.service';
+import { assertPdfUpload } from '../common/pdf-upload.util';
 
 @Controller('contacts')
 export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Post()
-  create(@Body() data: any) {
-    return this.contactsService.create(data);
+  @UseInterceptors(FileInterceptor('attachment'))
+  create(@Body() data: any, @UploadedFile() attachment?: Express.Multer.File) {
+    assertPdfUpload(attachment);
+    return this.contactsService.create(data, attachment);
   }
 
   @Get()

@@ -46,6 +46,7 @@ model Quote {
   status      String   @default("En attente") // En attente, En révision, Envoyé, Refusé
   amount      Float?
   pdfUrl      String?
+  attachmentUrl String?
   service     String?
   clientId    Int?
   userId      Int?
@@ -159,6 +160,7 @@ model Contact {
   phone     String?
   subject   String
   message   String
+  attachmentUrl String?
   status    String   @default("nouveau")
   createdAt DateTime @default(now())
 }

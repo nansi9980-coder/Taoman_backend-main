@@ -4,6 +4,7 @@ import { EventsGateway } from '../events/events.gateway';
 import { LogsService } from '../logs/logs.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { MailService } from '../mail/mail.service';
+import { MediaService } from '../media/media.service';
 
 @Injectable()
 export class ContactsService {
@@ -13,11 +14,28 @@ export class ContactsService {
     private logsService: LogsService,
     private notificationsService: NotificationsService,
     private mailService: MailService,
+    private mediaService: MediaService,
   ) {}
 
-  async create(data: { name: string; email: string; phone?: string; subject: string; message: string }) {
+  async create(
+    data: {
+      name: string;
+      email: string;
+      phone?: string;
+      subject: string;
+      message: string;
+      topic?: string;
+    },
+    attachment?: Express.Multer.File,
+  ) {
     if (!data.name?.trim() || !data.email?.trim() || !data.subject?.trim() || !data.message?.trim()) {
       throw new BadRequestException('Nom, email, sujet et message sont requis');
+    }
+
+    let attachmentUrl: string | null = null;
+    if (attachment) {
+      const media = await this.mediaService.uploadFile(attachment, 'contact-attachments');
+      attachmentUrl = media.url;
     }
 
     const contact = await this.prisma.contact.create({
@@ -27,6 +45,7 @@ export class ContactsService {
         phone: data.phone?.trim() || null,
         subject: data.subject.trim(),
         message: data.message.trim(),
+        attachmentUrl,
       },
     });
 
@@ -45,10 +64,25 @@ export class ContactsService {
       message: `${contact.name}: ${contact.subject}`,
     });
 
-    await this.mailService.sendAdminAlert(
-      `Nouveau contact — ${contact.subject}`,
-      `<p><strong>${contact.name}</strong> (${contact.email})</p><p>${contact.message}</p>`,
-    );
+    const attachmentLine = attachmentUrl
+      ? `<p><strong>Pièce jointe :</strong> <a href="${attachmentUrl}">${attachmentUrl}</a></p>`
+      : '';
+    const html = `<p><strong>${contact.name}</strong> (${contact.email})</p><p>${contact.message}</p>${attachmentLine}`;
+
+    if (data.topic === 'partner') {
+      const partnerEmail = process.env.PARTNER_CONTACT_EMAIL;
+      if (partnerEmail) {
+        await this.mailService.sendEmail(
+          partnerEmail,
+          `Partenariat B2B — ${contact.subject}`,
+          html,
+        );
+      } else {
+        await this.mailService.sendAdminAlert(`Partenariat B2B — ${contact.subject}`, html);
+      }
+    } else {
+      await this.mailService.sendAdminAlert(`Nouveau contact — ${contact.subject}`, html);
+    }
 
     return contact;
   }

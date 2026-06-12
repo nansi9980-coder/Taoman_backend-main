@@ -1,12 +1,26 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { QuotesService } from './quotes.service';
+import { assertPdfUpload } from '../common/pdf-upload.util';
 
 @Controller('quotes')
 export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 
   @Post('submit')
+  @UseInterceptors(FileInterceptor('attachment'))
   submitQuote(
     @Body()
     data: {
@@ -19,21 +33,26 @@ export class QuotesController {
       service?: string;
       userId?: number;
     },
+    @UploadedFile() attachment?: Express.Multer.File,
   ) {
+    assertPdfUpload(attachment);
     const description =
       data.description ||
       (data.service ? `Service demandé: ${data.service}` : undefined);
 
-    return this.quotesService.submitQuote({
-      clientName: data.name,
-      clientEmail: data.email,
-      clientPhone: data.phone,
-      address: data.address,
-      title: data.title,
-      description,
-      service: data.service,
-      userId: data.userId,
-    });
+    return this.quotesService.submitQuote(
+      {
+        clientName: data.name,
+        clientEmail: data.email,
+        clientPhone: data.phone,
+        address: data.address,
+        title: data.title,
+        description,
+        service: data.service,
+        userId: data.userId ? Number(data.userId) : undefined,
+      },
+      attachment,
+    );
   }
 
   @Get()
