@@ -79,13 +79,16 @@ export class StatsService {
 
     const [
       newContacts,
+      newProjectSubmissions,
       publishedServices,
       filledContentSections,
       recentContacts,
       recentQuotes,
+      recentProjectSubmissions,
       recentLogs,
     ] = await Promise.all([
       this.prisma.contact.count({ where: { status: 'nouveau' } }),
+      this.prisma.projectSubmission.count({ where: { status: 'nouveau' } }),
       this.prisma.serviceCard.count({ where: { published: true } }),
       this.prisma.siteContent.count(),
       this.prisma.contact.findMany({
@@ -97,6 +100,10 @@ export class StatsService {
         orderBy: { createdAt: 'desc' },
         include: { client: true },
       }),
+      this.prisma.projectSubmission.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+      }),
       this.prisma.log.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
@@ -106,10 +113,12 @@ export class StatsService {
     return {
       ...base,
       newContacts,
+      newProjectSubmissions,
       publishedServices,
       filledContentSections,
       recentContacts,
       recentQuotes,
+      recentProjectSubmissions,
       recentLogs,
     };
   }

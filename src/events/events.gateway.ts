@@ -31,4 +31,8 @@ export class EventsGateway {
   emitContact(contact: any) {
     this.server.emit('newContact', contact);
   }
+
+  emitProjectSubmission(submission: any) {
+    this.server.emit('newProjectSubmission', submission);
+  }
 }

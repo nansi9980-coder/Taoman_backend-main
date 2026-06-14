@@ -25,6 +25,7 @@ import { CalendarModule } from './calendar/calendar.module';
 import { StatsModule } from './stats/stats.module';
 import { EventsModule } from './events/events.module';
 import { ContactsModule } from './contacts/contacts.module';
+import { ProjectSubmissionsModule } from './project-submissions/project-submissions.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UserDashboardModule } from './user-dashboard/user-dashboard.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
@@ -58,6 +59,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     StatsModule,
     EventsModule,
     ContactsModule,
+    ProjectSubmissionsModule,
     NotificationsModule,
     UserDashboardModule,
   ],
