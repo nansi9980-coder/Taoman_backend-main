@@ -15,8 +15,8 @@ Les domaines `taomaninvestment.com`, `www.taomaninvestment.com` et `*.vercel.app
 
 ## Ordre de déploiement
 
-1. `npx prisma db push` (schéma Media.publicId, Backup.url)
-2. Déployer le **backend**
+1. Déployer le **backend** (Render exécute `prisma db push` au démarrage via `start:prod`)
+2. Si besoin immédiat sans redéploiement : `DATABASE_URL="..." npx prisma db push` depuis `Taoman_backend-main`
 3. Rebuild + déployer **admin** et **vitrine** (`VITE_API_URL` au build)
 
 ## Cloudinary
