@@ -29,6 +29,7 @@ import { ProjectSubmissionsModule } from './project-submissions/project-submissi
 import { NotificationsModule } from './notifications/notifications.module';
 import { UserDashboardModule } from './user-dashboard/user-dashboard.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { RealisationsModule } from './realisations/realisations.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     ReportsModule,
     MediaModule,
     BackupsModule,
+    RealisationsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
